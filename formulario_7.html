@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bye, Bach! — Solicitação de Orçamento</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --rose:#c0606e;--rose-light:#f7dde0;--rose-dark:#8a3a45;
+  --cream:#fdf9f6;--warm:#f3ece6;--text:#2a1a1e;--muted:#9a7880;
+  --white:#fff;--border:#ecddd8;--error:#d32f2f;--ok:#388e3c;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);}
+
+.hero{background:var(--white);border-bottom:1px solid var(--border);padding:36px 20px 28px;text-align:center;}
+.hero-logo{font-family:'Cormorant Garamond',serif;font-size:34px;color:var(--rose);letter-spacing:3px;margin-bottom:6px;}
+.hero-logo em{font-style:italic;color:var(--rose-dark);}
+.hero-sub{font-size:14px;color:var(--muted);max-width:480px;margin:0 auto;line-height:1.6;}
+
+.container{max-width:600px;margin:0 auto;padding:28px 16px 60px;}
+
+.intro-card{background:var(--rose-light);border:1px solid #e8b0b8;border-radius:14px;padding:18px 20px;margin-bottom:26px;font-size:13.5px;line-height:1.7;color:var(--rose-dark);}
+.intro-card strong{display:block;font-family:'Cormorant Garamond',serif;font-size:16px;margin-bottom:4px;}
+
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--rose-dark);margin:24px 0 12px;display:flex;align-items:center;gap:8px;}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.card{background:var(--white);border-radius:14px;padding:20px;border:1px solid var(--border);margin-bottom:14px;}
+
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.fg:last-child{margin-bottom:0;}
+.fg label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;}
+.fg label .req{color:var(--rose);}
+.fg input,.fg select,.fg textarea{padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;color:var(--text);background:var(--cream);outline:none;transition:border-color 0.2s;width:100%;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--rose);background:var(--white);}
+.fg input.err{border-color:var(--error);}
+.fg textarea{resize:vertical;min-height:76px;}
+.ferr{font-size:11.5px;color:var(--error);margin-top:3px;display:none;}
+.ferr.show{display:block;}
+.fhint{font-size:11.5px;color:var(--muted);margin-top:3px;}
+
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+@media(max-width:480px){.frow{grid-template-columns:1fr;}}
+
+.tel-match{display:none;font-size:12px;margin-top:4px;}
+.tel-match.ok{display:block;color:var(--ok);}
+.tel-match.err{display:block;color:var(--error);}
+
+.cep-found{display:none;font-size:12px;color:var(--ok);margin-top:4px;}
+.cep-err{display:none;font-size:12px;color:var(--error);margin-top:4px;}
+
+/* Event options */
+.evt-list select{width:100%;}
+.outro-wrap{display:none;margin-top:12px;}
+.outro-wrap.show{display:block;}
+
+/* Casamento */
+.cas-section{display:none;margin-top:14px;}
+.cas-section.show{display:block;}
+.chk-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.chk-item{display:flex;align-items:center;gap:9px;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);background:var(--cream);transition:all 0.18s;user-select:none;}
+.chk-item.on{border-color:var(--rose);background:var(--rose-light);color:var(--rose-dark);}
+.chk-item.locked{cursor:default;opacity:0.7;}
+.chk-box{width:16px;height:16px;border:2px solid #e8b0b8;border-radius:4px;flex-shrink:0;background:var(--white);display:flex;align-items:center;justify-content:center;transition:all 0.18s;}
+.chk-item.on .chk-box{background:var(--rose);border-color:var(--rose);}
+.chk-item.on .chk-box::after{content:'✓';color:white;font-size:9px;font-weight:700;}
+
+/* Maternidade */
+.mat-section{display:none;margin-top:14px;}
+.mat-section.show{display:block;}
+
+/* Quem */
+.quem-row{display:flex;gap:8px;}
+.quem-btn{flex:1;padding:10px;border:1.5px solid var(--border);border-radius:9px;background:var(--cream);cursor:pointer;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:var(--muted);text-align:center;transition:all 0.18s;}
+.quem-btn.on{border-color:var(--rose);background:var(--rose-light);color:var(--rose-dark);}
+
+/* Serviço */
+.serv-row{display:flex;gap:8px;}
+.serv-btn{flex:1;padding:11px 8px;border:1.5px solid var(--border);border-radius:9px;background:var(--cream);cursor:pointer;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:var(--muted);text-align:center;line-height:1.4;transition:all 0.18s;}
+.serv-btn small{display:block;font-size:11px;color:var(--muted);margin-top:2px;}
+.serv-btn.on{border-color:var(--rose);background:var(--rose-light);color:var(--rose-dark);}
+.serv-btn.on small{color:#c08088;}
+.kits-wrap{display:none;margin-top:14px;}
+.kits-wrap.show{display:block;}
+.deco-hint{font-size:12px;color:var(--muted);margin-top:7px;padding:9px 12px;background:var(--warm);border-radius:8px;line-height:1.6;}
+
+/* Submit */
+.btn-submit{width:100%;padding:15px;background:var(--rose);color:white;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:16px;font-weight:600;cursor:pointer;margin-top:22px;transition:background 0.2s;}
+.btn-submit:hover{background:var(--rose-dark);}
+.btn-submit:disabled{background:#c8a0a8;cursor:not-allowed;}
+.spinner{display:none;width:18px;height:18px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Success */
+.success{display:none;text-align:center;padding:56px 20px;}
+.success.show{display:block;}
+.success-icon{font-size:52px;margin-bottom:14px;}
+.success-title{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--rose-dark);margin-bottom:8px;}
+.success-text{color:var(--muted);font-size:14px;line-height:1.7;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-logo">Bye, <em>Bach!</em></div>
+  <div class="hero-sub">Preencha o formulário para receber seu orçamento personalizado. Adoramos criar algo único para o seu momento especial! 🩷</div>
+</div>
+
+<div class="container">
+  <div class="intro-card">
+    <strong>Olá! Que bom te ver por aqui 🍒</strong>
+    Com este formulário teremos uma ideia do que você deseja e montaremos um orçamento preliminar. O próximo passo é marcarmos uma conversa para entender melhor suas expectativas. Depois é só relaxar — o trabalho fica com a gente!
+  </div>
+
+  <div id="form-main">
+
+  <div class="sec-title">Seus dados</div>
+  <div class="card">
+    <div class="frow">
+      <div class="fg">
+        <label>Nome <span class="req">*</span></label>
+        <input type="text" id="f-nome" placeholder="Ex: Gabriella Santos" autocomplete="off">
+        <span class="ferr" id="err-nome">Informe seu nome</span>
+      </div>
+      <div class="fg">
+        <label>Sobrenome</label>
+        <input type="text" id="f-sobrenome" placeholder="Ex: Santos" autocomplete="off">
+      </div>
+    </div>
+    <div class="frow">
+      <div class="fg">
+        <label>WhatsApp com DDD <span class="req">*</span></label>
+        <input type="tel" id="f-tel1" placeholder="Ex: 31991234567" autocomplete="off" oninput="checkTel()">
+        <span class="ferr" id="err-tel">Número inválido</span>
+      </div>
+      <div class="fg">
+        <label>Confirme o WhatsApp <span class="req">*</span></label>
+        <input type="tel" id="f-tel2" placeholder="Digite novamente" autocomplete="off" oninput="checkTel()">
+        <span class="tel-match" id="tel-match"></span>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Cidade onde mora <span class="req">*</span></label>
+      <input type="text" id="f-cidade" placeholder="Ex: Belo Horizonte, MG" autocomplete="off">
+      <span class="ferr" id="err-cidade">Informe sua cidade</span>
+    </div>
+    <div class="fg">
+      <label>Como você nos conheceu?</label>
+      <select id="f-conheceu">
+        <option value="">Selecione...</option>
+        <option>Instagram</option><option>TikTok</option>
+        <option>Indicação de amiga</option><option>Google</option>
+        <option>Pinterest</option><option>Já fui cliente</option><option>Outro</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="sec-title">Sobre o evento</div>
+  <div class="card">
+    <div class="fg">
+      <label>Tipo de evento <span class="req">*</span></label>
+      <select id="f-evento" onchange="onEvento()">
+        <option value="">Selecione...</option>
+        <option value="despedida">Despedida de Solteira</option>
+        <option value="casamento">Casamento / Pacote</option>
+        <option value="noivado">Noivado</option>
+        <option value="civil">Civil</option>
+        <option value="padrinhos">Caixa de Padrinhos</option>
+        <option value="welcome">Welcome Kit</option>
+        <option value="aniversario">Aniversário</option>
+        <option value="15anos">15 Anos</option>
+        <option value="formatura">Formatura</option>
+        <option value="maternidade">Maternidade / Pacote</option>
+        <option value="mesversario">Mesversário (pacote 12 meses)</option>
+        <option value="viagem">Viagem</option>
+        <option value="corporativo">Corporativo</option>
+        <option value="outro">Outro</option>
+      </select>
+      <span class="ferr" id="err-evento">Selecione o evento</span>
+    </div>
+
+    <div class="outro-wrap" id="outro-wrap">
+      <div class="fg">
+        <label>Qual tipo de evento?</label>
+        <input type="text" id="f-outro" placeholder="Ex: Chá revelação, Festa surpresa..." autocomplete="off">
+      </div>
+    </div>
+
+    <!-- Casamento -->
+    <div class="cas-section" id="cas-section">
+      <div class="fg">
+        <label>Quais eventos fazem parte do pacote?</label>
+        <div class="chk-grid">
+          <div class="chk-item on locked"><div class="chk-box"></div>Casamento</div>
+          <div class="chk-item" id="fc-noivado" onclick="togChk(this)"><div class="chk-box"></div>Noivado</div>
+          <div class="chk-item" id="fc-civil" onclick="togChk(this)"><div class="chk-box"></div>Civil</div>
+          <div class="chk-item" id="fc-padrinhos" onclick="togChk(this)"><div class="chk-box"></div>Caixa de Padrinhos</div>
+          <div class="chk-item" id="fc-welcome" onclick="togChk(this)"><div class="chk-box"></div>Welcome Gift</div>
+          <div class="chk-item" id="fc-despedida" onclick="togChk(this)"><div class="chk-box"></div>Despedida de Solteira</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Maternidade -->
+    <div class="mat-section" id="mat-section">
+      <div class="fg">
+        <label>Adicionar ao pacote?</label>
+        <div class="chk-grid">
+          <div class="chk-item on locked"><div class="chk-box"></div>Maternidade</div>
+          <div class="chk-item" id="fm-batizado" onclick="togChk(this)"><div class="chk-box"></div>Batizado</div>
+          <div class="chk-item" id="fm-mesversario" onclick="togChk(this)"><div class="chk-box"></div>Mesversário (12 meses)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fg" style="margin-top:6px;">
+      <label>Este evento é...</label>
+      <div class="quem-row">
+        <button type="button" class="quem-btn on" id="q-eu" onclick="selQuem('eu')">Para mim</button>
+        <button type="button" class="quem-btn" id="q-outra" onclick="selQuem('outra')">Para outra pessoa</button>
+      </div>
+    </div>
+    <div id="nome-pessoa-wrap" style="display:none;margin-top:10px;">
+      <div class="fg">
+        <label>Nome da pessoa</label>
+        <input type="text" id="f-nome-pessoa" placeholder="Ex: Ana Paula" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="frow" style="margin-top:6px;">
+      <div class="fg">
+        <label>Data do evento</label>
+        <input type="date" id="f-data">
+      </div>
+      <div class="fg">
+        <label>Local do evento</label>
+        <input type="text" id="f-local" placeholder="Ex: Fazenda Boa Vista, SP" autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-title">Tipo de serviço</div>
+  <div class="card">
+    <div class="fg">
+      <label>O que você precisa? <span class="req">*</span></label>
+      <div class="serv-row">
+        <button type="button" class="serv-btn on" id="s-id" onclick="selServ('id')">
+          Só Identidade Visual
+          <small>Tema, logo, estampa, papelaria</small>
+        </button>
+        <button type="button" class="serv-btn" id="s-kits" onclick="selServ('kits')">
+          ID Visual + Kits
+          <small>Com produção dos kits personalizados</small>
+        </button>
+      </div>
+    </div>
+    <div class="kits-wrap" id="kits-wrap">
+      <div class="frow">
+        <div class="fg">
+          <label>Quantidade de kits</label>
+          <input type="number" id="f-kits" min="1" placeholder="Ex: 20">
+        </div>
+        <div class="fg">
+          <label>Budget por kit (R$)</label>
+          <input type="number" id="f-vkit" min="0" placeholder="Ex: 150">
+        </div>
+      </div>
+      <div class="fg" style="margin-top:8px;">
+        <label>Quer itens decorativos?</label>
+        <select id="f-deco">
+          <option value="">Selecione...</option>
+          <option>Sim</option><option>Não</option><option>Aberta a sugestões</option>
+        </select>
+        <div class="deco-hint">Exemplos: jogo americano, tag de porta, canudo personalizado, guardanapo, vela, fita personalizada, caixa, card.</div>
+      </div>
+      <div class="fg" style="margin-top:8px;">
+        <label>CEP para entrega dos kits</label>
+        <input type="text" id="f-cep" placeholder="Ex: 30380-400" autocomplete="off" oninput="onCep(this.value,'f')">
+        <div class="cep-found" id="f-cep-found"></div>
+        <div class="cep-err" id="f-cep-err">CEP não encontrado</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="fg">
+      <label>Expectativas e observações</label>
+      <textarea id="f-obs" placeholder="Nos conta o que você pensou, referências, exigências especiais, tema em mente..."></textarea>
+    </div>
+  </div>
+
+  <button class="btn-submit" id="btn-sub" onclick="submitForm()">
+    <span id="btn-txt">Enviar solicitação</span>
+    <div class="spinner" id="spinner"></div>
+  </button>
+  <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--muted);">* Campos obrigatórios. Entraremos em contato em até 24h pelo WhatsApp.</div>
+
+  </div>
+
+  <div class="success" id="success">
+    <div class="success-icon">🩷</div>
+    <div class="success-title">Recebemos sua solicitação!</div>
+    <div class="success-text">Obrigada por confiar na Bye, Bach!<br>Entraremos em contato em breve pelo WhatsApp para conversar sobre os detalhes e te enviar o orçamento personalizado.<br><br>Mal podemos esperar para criar algo incrível para você! 🍒</div>
+  </div>
+</div>
+
+<script>
+
+// Reset all fields on load to prevent browser autofill showing previous data
+window.addEventListener('load', function() {
+  const ids = ['f-nome','f-sobrenome','f-tel1','f-tel2','f-cidade',
+                'f-outro','f-nome-pessoa','f-local','f-cep','f-obs',
+                'f-kits','f-vkit','f-data'];
+  ids.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  document.getElementById('f-evento').selectedIndex = 0;
+  document.getElementById('f-conheceu').selectedIndex = 0;
+  document.getElementById('f-deco').selectedIndex = 0;
+  document.getElementById('tel-match').className = 'tel-match';
+  document.getElementById('f-cep-found').style.display = 'none';
+  document.getElementById('f-cep-err').style.display = 'none';
+});
+
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzNZAgpSbB0qr14jfibIhCzeueAWVcOEgtAkKz-ndFeI0OOr-9HY57j6Y46DIkmG7dl/exec';
+let quemSel='eu', servSel='id';
+
+function onEvento(){
+  const v=document.getElementById('f-evento').value;
+  document.getElementById('cas-section').classList.toggle('show',v==='casamento');
+  document.getElementById('mat-section').classList.toggle('show',v==='maternidade');
+  document.getElementById('outro-wrap').classList.toggle('show',v==='outro');
+}
+function togChk(el){el.classList.toggle('on');}
+function selQuem(v){
+  quemSel=v;
+  document.getElementById('q-eu').classList.toggle('on',v==='eu');
+  document.getElementById('q-outra').classList.toggle('on',v==='outra');
+  document.getElementById('nome-pessoa-wrap').style.display=v==='outra'?'block':'none';
+}
+function selServ(v){
+  servSel=v;
+  document.getElementById('s-id').classList.toggle('on',v==='id');
+  document.getElementById('s-kits').classList.toggle('on',v==='kits');
+  document.getElementById('kits-wrap').classList.toggle('show',v==='kits');
+}
+
+function checkTel(){
+  const t1=document.getElementById('f-tel1').value.replace(/\D/g,'');
+  const t2=document.getElementById('f-tel2').value.replace(/\D/g,'');
+  const m=document.getElementById('tel-match');
+  if(!t2){m.className='tel-match';return;}
+  if(t1===t2&&t1.length>=10){m.className='tel-match ok';m.textContent='✓ Números conferem';}
+  else if(t1!==t2){m.className='tel-match err';m.textContent='✗ Os números não coincidem';}
+  else{m.className='tel-match err';m.textContent='✗ Número incompleto';}
+}
+
+let _cepT=null;
+async function onCep(val,prefix){
+  const d=val.replace(/\D/g,'');
+  const found=document.getElementById(prefix+'-cep-found');
+  const err=document.getElementById(prefix+'-cep-err');
+  found.style.display='none';err.style.display='none';
+  clearTimeout(_cepT);
+  if(d.length<8)return;
+  _cepT=setTimeout(async()=>{
+    try{
+      const r=await fetch('https://viacep.com.br/ws/'+d+'/json/');
+      const j=await r.json();
+      if(j.erro){err.style.display='block';}
+      else{found.textContent='📍 '+j.localidade+', '+j.uf;found.style.display='block';}
+    }catch(e){}
+  },600);
+}
+
+function getCasEventos(){
+  const ids=['fc-noivado','fc-civil','fc-padrinhos','fc-welcome','fc-despedida'];
+  const lbs={
+    'fc-noivado':'Noivado','fc-civil':'Civil','fc-padrinhos':'Caixa de Padrinhos',
+    'fc-welcome':'Welcome Gift','fc-despedida':'Despedida de Solteira'
+  };
+  const sel=['Casamento'];
+  ids.forEach(id=>{const el=document.getElementById(id);if(el&&el.classList.contains('on'))sel.push(lbs[id]);});
+  return sel.join(', ');
+}
+function getMatEventos(){
+  const ids=['fm-batizado','fm-mesversario'];
+  const lbs={'fm-batizado':'Batizado','fm-mesversario':'Mesversário (12 meses)'};
+  const sel=['Maternidade'];
+  ids.forEach(id=>{const el=document.getElementById(id);if(el&&el.classList.contains('on'))sel.push(lbs[id]);});
+  return sel.join(', ');
+}
+
+function validate(){
+  let ok=true;
+  [['f-nome','err-nome'],['f-cidade','err-cidade'],['f-evento','err-evento']].forEach(([id,eid])=>{
+    const el=document.getElementById(id);
+    const err=document.getElementById(eid);
+    if(!el.value.trim()){el.classList.add('err');err.classList.add('show');ok=false;}
+    else{el.classList.remove('err');err.classList.remove('show');}
+  });
+  const t1=document.getElementById('f-tel1').value.replace(/\D/g,'');
+  const t2=document.getElementById('f-tel2').value.replace(/\D/g,'');
+  if(t1.length<10){document.getElementById('f-tel1').classList.add('err');document.getElementById('err-tel').classList.add('show');ok=false;}
+  else{document.getElementById('f-tel1').classList.remove('err');document.getElementById('err-tel').classList.remove('show');}
+  if(t1!==t2){document.getElementById('f-tel2').classList.add('err');document.getElementById('tel-match').className='tel-match err';document.getElementById('tel-match').textContent='✗ Os números não coincidem';ok=false;}
+  return ok;
+}
+
+async function submitForm(){
+  if(!validate())return;
+  const btn=document.getElementById('btn-sub');
+  document.getElementById('btn-txt').style.display='none';
+  document.getElementById('spinner').style.display='block';
+  btn.disabled=true;
+
+  const cepEl=document.getElementById('f-cep-found');
+  const cidadeEntrega=cepEl&&cepEl.style.display!=='none'?cepEl.textContent.replace('📍 ',''):'';
+  const evento=document.getElementById('f-evento').value;
+  const eventoFinal=evento==='outro'?(document.getElementById('f-outro').value||'outro'):evento;
+
+  const data={
+    timestamp:new Date().toISOString(),
+    nome:document.getElementById('f-nome').value.trim(),
+    sobrenome:document.getElementById('f-sobrenome').value.trim(),
+    telefone:document.getElementById('f-tel1').value.replace(/\D/g,''),
+    cidade:document.getElementById('f-cidade').value.trim(),
+    como_conheceu:document.getElementById('f-conheceu').value,
+    evento:eventoFinal,
+    eventos_pacote:evento==='casamento'?getCasEventos():evento==='maternidade'?getMatEventos():'',
+    para_quem:quemSel,
+    nome_homenageada:document.getElementById('f-nome-pessoa').value.trim(),
+    data_evento:document.getElementById('f-data').value,
+    local_evento:document.getElementById('f-local').value.trim(),
+    servico:servSel,
+    kits_qtd:document.getElementById('f-kits').value,
+    kits_valor:document.getElementById('f-vkit').value,
+    decorativos:document.getElementById('f-deco').value,
+    cep_entrega:document.getElementById('f-cep').value.trim(),
+    cidade_entrega:cidadeEntrega,
+    obs:document.getElementById('f-obs').value.trim(),
+    status:'novo'
+  };
+
+  try{
+    await fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  }catch(e){}
+
+  document.getElementById('form-main').style.display='none';
+  document.getElementById('success').classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
